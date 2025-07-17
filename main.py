@@ -262,6 +262,5 @@ async def on_ready():
         print(f"Erreur sync : {e}")
 
 # Note: garde ta fonction keep_alive() si tu l'utilises.
-# keep_alive()
-
+keep_alive()
 bot.run(token)
