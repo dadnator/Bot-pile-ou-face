@@ -73,10 +73,8 @@ class RejoindreView(discord.ui.View):
         self.children[1].disabled = True
         await interaction.response.edit_message(view=self)
 
-        # Récupérer le message original pour pouvoir l'éditer plusieurs fois
         original_message = await interaction.channel.fetch_message(self.message_id)
 
-        # L'embed de suspense avec le GIF et le compte à rebours
         suspense_embed = discord.Embed(
             title="🪙 Le pile ou face est en cours...",
             description="On croise les doigts 🤞🏻 !",
@@ -84,14 +82,12 @@ class RejoindreView(discord.ui.View):
         )
         suspense_embed.set_image(url="https://www.cliqueduplateau.com/wordpress/wp-content/uploads/2015/12/flip.gif")
 
-        await original_message.edit(embed=suspense_embed, view=None) # Afficher le GIF initial
+        await original_message.edit(embed=suspense_embed, view=None)
 
-        for i in range(10, 0, -1): # Compte à rebours de 10 secondes
+        for _ in range(10):
             await asyncio.sleep(1)
-            suspense_embed.title = f"🪙 Tirage en cours..."
             await original_message.edit(embed=suspense_embed)
 
-        # Une fois le compte à rebours terminé, on peut procéder au tirage
         tirage = random.choice(["pile", "face"])
         gagnant = self.joueur1 if tirage == self.choix_joueur1 else self.joueur2
         gain = int(self.montant * 2 * (1 - COMMISSION))
@@ -103,18 +99,10 @@ class RejoindreView(discord.ui.View):
         )
         result.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention} — {EMOJIS[self.choix_joueur1]} `{self.choix_joueur1.upper()}`", inline=True)
         result.add_field(name="👤 Joueur 2", value=f"{self.joueur2.mention} — {EMOJIS[self.opposés[self.choix_joueur1]]} `{self.opposés[self.choix_joueur1].upper()}`", inline=False)
-
-        # Champ avec des tirets pour créer une ligne de séparation
-        # Vous pouvez ajuster le nombre de tirets ou utiliser d'autres caractères
-        result.add_field(name=" ", value="─" * 20, inline=False) # Utilise des tirets '─' (barre horizontale légère)
-
+        result.add_field(name=" ", value="─" * 20, inline=False)
         result.add_field(name="🏆 Gagnant", value=f"{gagnant.mention} remporte **{gain:,} kamas** 💰 (après 5% de commission)", inline=False)
 
-
-
-        
-
-        await original_message.edit(embed=result) # Mettre à jour avec le résultat final
+        await original_message.edit(embed=result)
         duels.pop(self.message_id, None)
 
 class ChoixPileOuFace(discord.ui.View):
@@ -146,8 +134,23 @@ class ChoixPileOuFace(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=None)
 
         rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
-        message = await interaction.channel.send(embed=embed, view=rejoindre_view)
-        rejoindre_view.message_id = message.id # Stocker l'ID du message pour le récupérer plus tard
+
+        # 🔽 AJOUT ICI : ping membre + croupier
+        role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+
+        mention_text = ""
+        if role_membre:
+            mention_text += f"{role_membre.mention} "
+        if role_croupier:
+            mention_text += f"{role_croupier.mention}"
+
+        message = await interaction.channel.send(
+            content=mention_text.strip(),
+            embed=embed,
+            view=rejoindre_view
+        )
+        rejoindre_view.message_id = message.id
 
         duels[message.id] = {
             "joueur1": self.joueur1,
@@ -208,7 +211,7 @@ async def quit_duel(interaction: discord.Interaction):
         embed.color = discord.Color.red()
         await msg.edit(embed=embed, view=None)
     except:
-        pass # Le message a peut-être déjà été supprimé ou n'existe plus
+        pass
 
     await interaction.response.send_message("✅ Duel annulé.", ephemeral=True)
 
