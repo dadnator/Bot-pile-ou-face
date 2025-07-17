@@ -135,29 +135,24 @@ class ChoixPileOuFace(discord.ui.View):
 
         rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
 
-        # 🔽 AJOUT ICI : ping membre + croupier
+        # 🔽 AJOUT ICI : ping membre + croupier + message
         role_membre = discord.utils.get(interaction.guild.roles, name="membre")
         role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
 
-        mention_text = ""
+        mentions = []
         if role_membre:
-            mention_text += f"{role_membre.mention} "
+            mentions.append(role_membre.mention)
         if role_croupier:
-            mention_text += f"{role_croupier.mention}"
+            mentions.append(role_croupier.mention)
+
+        mention_text = " ".join(mentions) + " — Un nouveau duel est prêt ! Un croupier est attendu."
 
         message = await interaction.channel.send(
-            content=mention_text.strip(),
+            content=mention_text,
             embed=embed,
             view=rejoindre_view
         )
-        rejoindre_view.message_id = message.id
 
-        duels[message.id] = {
-            "joueur1": self.joueur1,
-            "choix": choix,
-            "montant": self.montant,
-            "joueur2": None
-        }
 
     @discord.ui.button(label="🪙 Pile", style=discord.ButtonStyle.primary)
     async def pile(self, interaction: discord.Interaction, button: discord.ui.Button):
