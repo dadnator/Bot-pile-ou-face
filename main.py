@@ -250,21 +250,8 @@ async def quit_duel(interaction: discord.Interaction):
     except Exception as e:
         print(f"Erreur lors de la modification du message duel annulé : {e}")
 
-    if interaction.response.is_done():
-    # Si on a déjà répondu (rare ici mais possible)
-    await interaction.followup.send("✅ Duel annulé.", ephemeral=True)
-else:
     await interaction.response.send_message("✅ Duel annulé.", ephemeral=True)
 
-
-@bot.event
-async def on_ready():
-    print(f"{bot.user} prêt !")
-    try:
-        await bot.tree.sync()
-        print("✅ Commandes slash synchronisées.")
-    except Exception as e:
-        print(f"Erreur sync : {e}")
 
 # Note: garde ta fonction keep_alive() si tu l'utilises.
 
