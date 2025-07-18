@@ -115,47 +115,51 @@ class ChoixPileOuFace(discord.ui.View):
         self.interaction = interaction
         self.montant = montant
 
-    async def lock_choice(self, interaction, choix):
-        if interaction.user.id != self.joueur1.id:
-            await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
-            return
+async def lock_choice(self, interaction, choix):
+    if interaction.user.id != self.joueur1.id:
+        await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
+        return
 
-        opposé = "face" if choix == "pile" else "pile"
+    opposé = "face" if choix == "pile" else "pile"
 
-        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
-        role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+    role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+    role_membre = discord.utils.get(interaction.guild.roles, name="membre")
 
-        contenu_ping = ""
-        if role_membre and role_croupier:
-            contenu_ping = f"{role_membre.mention} {role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
-            
-        embed = discord.Embed(
-            title="🪙 Duel Pile ou Face",
-            description=(f"{self.joueur1.mention} a choisi : {EMOJIS[choix]} **{choix.upper()}**\n"
-                         f"Montant misé : **{self.montant:,} kamas** 💰\n"
-                         f"Commission de 5% (gain net : **{int(self.montant * 2 * (1 - COMMISSION)):,} kamas**)"),
-            color=discord.Color.orange()
-        )
-        embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
-        embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
-
-        await interaction.response.edit_message(view=None)
-
-        rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
+    contenu_ping = ""
+    if role_membre and role_croupier:
+        contenu_ping = f"{role_membre.mention} {role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
         
-        message = await interaction.channel.send(
-            content=contenu_ping,
-            embed=embed,
-            view=rejoindre_view,
-            allowed_mentions=discord.AllowedMentions(roles=True)
-        )
+    embed = discord.Embed(
+        title="🪙 Duel Pile ou Face",
+        description=(f"{self.joueur1.mention} a choisi : {EMOJIS[choix]} **{choix.upper()}**\n"
+                     f"Montant misé : **{self.montant:,} kamas** 💰\n"
+                     f"Commission de 5% (gain net : **{int(self.montant * 2 * (1 - COMMISSION)):,} kamas**)"),
+        color=discord.Color.orange()
+    )
+    embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
+    embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
 
-        duels[message.id] = {
-            "joueur1": self.joueur1,
-            "choix": choix,
-            "montant": self.montant,
-            "joueur2": None
-        }
+    await interaction.response.edit_message(view=None)
+
+    rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
+
+    message = await interaction.channel.send(
+        content=contenu_ping,
+        embed=embed,
+        view=rejoindre_view,
+        allowed_mentions=discord.AllowedMentions(roles=True)
+    )
+
+    # ✅ Correction ici : on attribue le bon ID à la vue
+    rejoindre_view.message_id = message.id
+
+    duels[message.id] = {
+        "joueur1": self.joueur1,
+        "choix": choix,
+        "montant": self.montant,
+        "joueur2": None
+    }
+
 
     @discord.ui.button(label="🪙 Pile", style=discord.ButtonStyle.primary)
     async def pile(self, interaction: discord.Interaction, button: discord.ui.Button):
