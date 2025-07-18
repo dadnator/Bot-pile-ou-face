@@ -122,6 +122,13 @@ class ChoixPileOuFace(discord.ui.View):
 
         opposé = "face" if choix == "pile" else "pile"
 
+        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+        role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+
+        contenu_ping = ""
+        if role_membre and role_croupier:
+            contenu_ping = f"{role_membre.mention} {role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
+            
         embed = discord.Embed(
             title="🪙 Duel Pile ou Face",
             description=(f"{self.joueur1.mention} a choisi : {EMOJIS[choix]} **{choix.upper()}**\n"
@@ -132,11 +139,16 @@ class ChoixPileOuFace(discord.ui.View):
         embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
         embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
 
-        await interaction.response.edit_message(embed=embed, view=None)
+        await interaction.response.edit_message(view=None)
 
         rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
-        message = await interaction.channel.send(embed=embed, view=rejoindre_view)
-        rejoindre_view.message_id = message.id
+        
+        message = await interaction.channel.send(
+            content=contenu_ping,
+            embed=embed,
+            view=rejoindre_view,
+            allowed_mentions=discord.AllowedMentions(roles=True)
+        )
 
         duels[message.id] = {
             "joueur1": self.joueur1,
