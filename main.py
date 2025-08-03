@@ -106,32 +106,71 @@ class RejoindreView(discord.ui.View):
 
         for i in range(10, 0, -1):
             await asyncio.sleep(1)
-            suspense_embed.title = f"🪙 Tirage en cours..."
+            # Uniquement l'emoji pile 🪙 durant le suspense
+            suspense_embed.title = f"🪙  Tirage en cours ..."
             await original_message.edit(embed=suspense_embed)
 
-        tirage = random.choice(["pile", "face"])
-        gagnant = self.joueur1 if tirage == self.choix_joueur1 else self.joueur2
-        gain = int(self.montant * 2 * (1 - COMMISSION))
+        resultat = random.choice(["Pile", "Face"])
+        resultat_emoji = "🪙" if resultat == "Pile" else "🧿"
 
-        result = discord.Embed(
-            title="🪙 Résultat : Pile ou Face",
-            description=f"Tirage : {EMOJIS[tirage]} **{tirage.upper()}**",
-            color=discord.Color.green() if gagnant == self.joueur1 else discord.Color.red()
+        # Déterminer gagnant
+        choix_joueur2 = "Face" if self.choix_joueur1 == "Pile" else "Pile"
+        choix_joueur1_emoji = "🪙" if self.choix_joueur1 == "Pile" else "🧿"
+        choix_joueur2_emoji = "🪙" if choix_joueur2 == "Pile" else "🧿"
+
+        gagnant = None
+        if resultat == self.choix_joueur1:
+            gagnant = self.joueur1
+        else:
+            gagnant = joueur2
+
+        result_embed = discord.Embed(
+            title="🎲 Résultat du Duel Pile ou Face",
+            description=f"{resultat_emoji} Le résultat est : **{resultat}** !",
+            color=discord.Color.green() if gagnant == joueur2 else discord.Color.red()
         )
 
-        # AJOUTE CETTE LIGNE POUR L'IMAGE DU NUMÉRO TIRÉ
-        if tirage in ROULETTE_NUM_IMAGES:
-            result.set_thumbnail(url=ROULETTE_NUM_IMAGES[tirage.capitalize()])
-            
-        result.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention} — {EMOJIS[self.choix_joueur1]} `{self.choix_joueur1.upper()}`", inline=True)
-        result.add_field(name="👤 Joueur 2", value=f"{self.joueur2.mention} — {EMOJIS[self.opposés[self.choix_joueur1]]} `{self.opposés[self.choix_joueur1].upper()}`", inline=False)
+        # ✅ Ajout de l'image en haut à droite selon le résultat
+        if resultat in ROULETTE_NUM_IMAGES:
+            result_embed.set_thumbnail(url=ROULETTE_NUM_IMAGES[resultat])
 
-        result.add_field(name=" ", value="─" * 20, inline=False)
+        # Joueur 1
+        result_embed.add_field(
+            name="👤 Joueur 1",
+            value=f"{self.joueur1.mention}\nChoix : **{self.choix_joueur1} {choix_joueur1_emoji}**",
+            inline=True
+        )
 
-        result.add_field(name="💰 Montant misé", value=f"**{self.montant:,.0f}".replace(",", " ") + " kamas** par joueur", inline=False)
-        result.add_field(name="🏆 **Gagnant**", value=f"**{gagnant.mention} remporte {gain:,.0f}".replace(",", " ") + " kamas 💰** *(après 5% de commission)*", inline=False)
-        
-        await original_message.edit(embed=result)
+        # Joueur 2
+        result_embed.add_field(
+            name="👤 Joueur 2",
+            value=f"{joueur2.mention}\nChoix : **{choix_joueur2} {choix_joueur2_emoji}**",
+            inline=False
+        )
+
+        result_embed.add_field(
+            name=" ",
+            value="─" * 20,
+            inline=False
+        )
+
+        # Montant misé
+        result_embed.add_field(
+            name="💰 Montant misé",
+            value=f"**{self.montant:,}".replace(",", " ") + " kamas** par joueur ",
+            inline=False
+        )
+
+        # Gagnant
+        result_embed.add_field(
+            name="🏆 **Gagnant**",
+            value=f"**{gagnant.mention} remporte {gain:,.0f}".replace(",", " ") + " kamas 💰** *(après 5% de commission)*",
+            inline=False
+        )
+
+        result_embed.set_footer(text="🪙 Duel terminé • Bonne chance pour le prochain !")
+
+        await original_message.edit(embed=result_embed, view=None)
         
          # --- Insertion dans la base ---
         now = datetime.utcnow()
