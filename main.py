@@ -121,7 +121,7 @@ class RejoindreView(discord.ui.View):
 
         # AJOUTE CETTE LIGNE POUR L'IMAGE DU NUMÉRO TIRÉ
         if tirage in ROULETTE_NUM_IMAGES:
-            result.set_thumbnail(url=ROULETTE_NUM_IMAGES[numero])
+            result.set_thumbnail(url=ROULETTE_NUM_IMAGES[tirage.capitalize()])
             
         result.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention} — {EMOJIS[self.choix_joueur1]} `{self.choix_joueur1.upper()}`", inline=True)
         result.add_field(name="👤 Joueur 2", value=f"{self.joueur2.mention} — {EMOJIS[self.opposés[self.choix_joueur1]]} `{self.opposés[self.choix_joueur1].upper()}`", inline=False)
