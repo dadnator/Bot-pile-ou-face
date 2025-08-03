@@ -14,7 +14,7 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="/", intents=intents)
 
 duels = {}
-EMOJIS = {"Pile": "🪙", "face": "🧿"}
+EMOJIS = {"Pile": "🪙", "Face": "🧿"}
 COMMISSION = 0.05
 
 ROULETTE_NUM_IMAGES = {
@@ -23,7 +23,7 @@ ROULETTE_NUM_IMAGES = {
 }
 
 # --- Connexion SQLite et création table ---
-conn = sqlite3.connect("Pile_face_stats.db")
+conn = sqlite3.connect("Pile_Face_stats.db")
 c = conn.cursor()
 c.execute("""
 CREATE TABLE IF NOT EXISTS paris (
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS paris (
 conn.commit()
 
 class RejoindreView(discord.ui.View):
-    opposés = {"Pile": "face", "face": "Pile"}
+    opposés = {"Pile": "Face", "Face": "Pile"}
 
     def __init__(self, message_id, joueur1, choix_joueur1, montant):
         super().__init__(timeout=300)
@@ -82,7 +82,7 @@ class RejoindreView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
 
-        async def lancer_pof(self, interaction: discord.Interaction):
+    async def lancer_pof(self, interaction: discord.Interaction):
         if not any(role.name == "croupier" for role in interaction.user.roles):
             await interaction.response.send_message("❌ Seuls les `croupiers` peuvent lancer le tirage.", ephemeral=True)
             return
@@ -101,7 +101,7 @@ class RejoindreView(discord.ui.View):
             return
 
         suspense_embed = discord.Embed(
-            title="🪙 Le Pile ou face est en cours...",
+            title="🪙 Le Pile ou Face est en cours...",
             description="On croise les doigts 🤞🏻 !",
             color=discord.Color.greyple()
         )
@@ -115,15 +115,11 @@ class RejoindreView(discord.ui.View):
 
         resultat = random.choice(["Pile", "Face"])
         resultat_emoji = "🪙" if resultat == "Pile" else "🧿"
-
-        # 🔧 Normalisation du choix joueur1
-        choix_joueur1 = self.choix_joueur1.capitalize()
-        choix_joueur1_emoji = "🪙" if choix_joueur1 == "Pile" else "🧿"
-
-        choix_joueur2 = "Face" if choix_joueur1 == "Pile" else "Pile"
+        choix_joueur2 = "Face" if self.choix_joueur1 == "Pile" else "Pile"
+        choix_joueur1_emoji = "🪙" if self.choix_joueur1 == "Pile" else "🧿"
         choix_joueur2_emoji = "🪙" if choix_joueur2 == "Pile" else "🧿"
 
-        gagnant = self.joueur1 if resultat == choix_joueur1 else self.joueur2
+        gagnant = self.joueur1 if resultat == self.choix_joueur1 else self.joueur2
         gain = int(self.montant * 2 * (1 - COMMISSION))
 
         result_embed = discord.Embed(
@@ -137,7 +133,7 @@ class RejoindreView(discord.ui.View):
 
         result_embed.add_field(
             name="👤 Joueur 1",
-            value=f"{self.joueur1.mention}\nChoix : **{choix_joueur1} {choix_joueur1_emoji}**",
+            value=f"{self.joueur1.mention}\nChoix : **{self.choix_joueur1} {choix_joueur1_emoji}**",
             inline=True
         )
 
@@ -179,7 +175,6 @@ class RejoindreView(discord.ui.View):
         duels.pop(self.message_id, None)
 
 
-
 class ChoixPileOuFace(discord.ui.View):
     def __init__(self, interaction, montant):
         super().__init__(timeout=180)
@@ -192,7 +187,7 @@ class ChoixPileOuFace(discord.ui.View):
             await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
             return
 
-        opposé = "face" if choix == "Pile" else "Pile"
+        opposé = "Face" if choix == "Pile" else "Pile"
 
         role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
         role_membre = discord.utils.get(interaction.guild.roles, name="membre")
@@ -241,8 +236,8 @@ class ChoixPileOuFace(discord.ui.View):
         await self.lock_choice(interaction, "Pile")
 
     @discord.ui.button(label="🧿 Face", style=discord.ButtonStyle.secondary)
-    async def face(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.lock_choice(interaction, "face")
+    async def Face(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.lock_choice(interaction, "Face")
 
 
 # Pagination pour affichage stats
@@ -320,7 +315,7 @@ class StatsView(discord.ui.View):
 # --- Commande /statsall : stats à vie ---
 @bot.tree.command(name="statsall", description="Affiche les stats de roulette à vie")
 async def statsall(interaction: discord.Interaction):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-face":
+    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-Face":
         await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon #roulette.", ephemeral=True)
         return
 
@@ -416,11 +411,11 @@ async def mystats(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@bot.tree.command(name="duel", description="Lancer un duel Pile ou face avec un montant.")
+@bot.tree.command(name="duel", description="Lancer un duel Pile ou Face avec un montant.")
 @app_commands.describe(montant="Montant misé en kamas")
 async def duel(interaction: discord.Interaction, montant: int):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-face":
-        await interaction.response.send_message("❌ Utilise cette commande dans #Pile-ou-face.", ephemeral=True)
+    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-Face":
+        await interaction.response.send_message("❌ Utilise cette commande dans #Pile-ou-Face.", ephemeral=True)
         return
 
     if montant <= 0:
@@ -475,4 +470,5 @@ async def on_ready():
 
 keep_alive()
 bot.run(token)
+
 
