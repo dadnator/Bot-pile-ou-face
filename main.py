@@ -94,7 +94,11 @@ class RejoindreView(discord.ui.View):
         self.children[1].disabled = True
         await interaction.response.edit_message(view=self)
 
-        original_message = await interaction.channel.fetch_message(self.message_id)
+        try:
+            original_message = await interaction.channel.fetch_message(self.message_id)
+        except discord.NotFound:
+            await interaction.response.send_message("❌ Le message du duel est introuvable.", ephemeral=True)
+            return
 
         suspense_embed = discord.Embed(
             title="🪙 Le pile ou face est en cours...",
@@ -104,64 +108,49 @@ class RejoindreView(discord.ui.View):
         suspense_embed.set_image(url="https://www.cliqueduplateau.com/wordpress/wp-content/uploads/2015/12/flip.gif")
         await original_message.edit(embed=suspense_embed, view=None)
 
-        for i in range(10, 0, -1):
+        for _ in range(10):
             await asyncio.sleep(1)
-            # Uniquement l'emoji pile 🪙 durant le suspense
             suspense_embed.title = f"🪙  Tirage en cours ..."
             await original_message.edit(embed=suspense_embed)
 
         resultat = random.choice(["Pile", "Face"])
         resultat_emoji = "🪙" if resultat == "Pile" else "🧿"
-
-        # Déterminer gagnant
         choix_joueur2 = "Face" if self.choix_joueur1 == "Pile" else "Pile"
         choix_joueur1_emoji = "🪙" if self.choix_joueur1 == "Pile" else "🧿"
         choix_joueur2_emoji = "🪙" if choix_joueur2 == "Pile" else "🧿"
 
-        gagnant = None
-        if resultat == self.choix_joueur1:
-            gagnant = self.joueur1
-        else:
-            gagnant = joueur2
+        gagnant = self.joueur1 if resultat == self.choix_joueur1 else self.joueur2
+        gain = int(self.montant * 2 * (1 - COMMISSION))
 
         result_embed = discord.Embed(
             title="🎲 Résultat du Duel Pile ou Face",
             description=f"{resultat_emoji} Le résultat est : **{resultat}** !",
-            color=discord.Color.green() if gagnant == joueur2 else discord.Color.red()
+            color=discord.Color.green() if gagnant == self.joueur2 else discord.Color.red()
         )
 
-        # ✅ Ajout de l'image en haut à droite selon le résultat
         if resultat in ROULETTE_NUM_IMAGES:
             result_embed.set_thumbnail(url=ROULETTE_NUM_IMAGES[resultat])
 
-        # Joueur 1
         result_embed.add_field(
             name="👤 Joueur 1",
             value=f"{self.joueur1.mention}\nChoix : **{self.choix_joueur1} {choix_joueur1_emoji}**",
             inline=True
         )
 
-        # Joueur 2
         result_embed.add_field(
             name="👤 Joueur 2",
-            value=f"{joueur2.mention}\nChoix : **{choix_joueur2} {choix_joueur2_emoji}**",
+            value=f"{self.joueur2.mention}\nChoix : **{choix_joueur2} {choix_joueur2_emoji}**",
             inline=False
         )
 
-        result_embed.add_field(
-            name=" ",
-            value="─" * 20,
-            inline=False
-        )
+        result_embed.add_field(name=" ", value="─" * 20, inline=False)
 
-        # Montant misé
         result_embed.add_field(
             name="💰 Montant misé",
             value=f"**{self.montant:,}".replace(",", " ") + " kamas** par joueur ",
             inline=False
         )
 
-        # Gagnant
         result_embed.add_field(
             name="🏆 **Gagnant**",
             value=f"**{gagnant.mention} remporte {gain:,.0f}".replace(",", " ") + " kamas 💰** *(après 5% de commission)*",
@@ -169,10 +158,9 @@ class RejoindreView(discord.ui.View):
         )
 
         result_embed.set_footer(text="🪙 Duel terminé • Bonne chance pour le prochain !")
-
         await original_message.edit(embed=result_embed, view=None)
-        
-         # --- Insertion dans la base ---
+
+        # --- Insertion dans la base ---
         now = datetime.utcnow()
         try:
             c.execute(
@@ -185,6 +173,7 @@ class RejoindreView(discord.ui.View):
             print("❌ Erreur insertion base:", e)
 
         duels.pop(self.message_id, None)
+
 
 class ChoixPileOuFace(discord.ui.View):
     def __init__(self, interaction, montant):
