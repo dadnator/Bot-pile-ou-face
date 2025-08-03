@@ -82,7 +82,7 @@ class RejoindreView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
 
-        async def lancer_pof(self, interaction: discord.Interaction):
+    async def lancer_pof(self, interaction: discord.Interaction):
         if not any(role.name == "croupier" for role in interaction.user.roles):
             await interaction.response.send_message("❌ Seuls les `croupiers` peuvent lancer le tirage.", ephemeral=True)
             return
@@ -116,7 +116,6 @@ class RejoindreView(discord.ui.View):
         resultat = random.choice(["Pile", "Face"])
         resultat_emoji = "🪙" if resultat == "Pile" else "🧿"
 
-        # 🔧 Normalisation du choix joueur1
         choix_joueur1 = self.choix_joueur1.capitalize()
         choix_joueur1_emoji = "🪙" if choix_joueur1 == "Pile" else "🧿"
 
@@ -164,7 +163,6 @@ class RejoindreView(discord.ui.View):
         result_embed.set_footer(text="🪙 Duel terminé • Bonne chance pour le prochain !")
         await original_message.edit(embed=result_embed, view=None)
 
-        # --- Insertion dans la base ---
         now = datetime.utcnow()
         try:
             c.execute(
@@ -177,6 +175,7 @@ class RejoindreView(discord.ui.View):
             print("❌ Erreur insertion base:", e)
 
         duels.pop(self.message_id, None)
+
 
 
 
