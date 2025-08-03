@@ -404,7 +404,7 @@ async def duel(interaction: discord.Interaction, montant: int):
 
     embed = discord.Embed(
         title="🪙 Nouveau Duel Pile ou Face",
-        description=f"{interaction.user.mention} veut miser **{montant:,} kamas** 💰\nChoisis Pile ou Face :",
+        description=f"{interaction.user.mention} veut miser **{montant:,.0f}".replace(",", " ") + " kamas** 💰\nChoisis Pile ou Face :",
         color=discord.Color.gold()
     )
 
