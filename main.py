@@ -155,9 +155,9 @@ class ChoixPileOuFace(discord.ui.View):
         self.montant = montant
 
     async def lock_choice(self, interaction, choix):
-    if interaction.user.id != self.joueur1.id:
-        await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
-        return
+        if interaction.user.id != self.joueur1.id:
+            await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
+            return
 
     opposé = "face" if choix == "pile" else "pile"
 
