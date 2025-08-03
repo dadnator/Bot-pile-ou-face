@@ -159,50 +159,49 @@ class ChoixPileOuFace(discord.ui.View):
             await interaction.response.send_message("❌ Tu ne peux pas faire ce choix.", ephemeral=True)
             return
 
-    opposé = "face" if choix == "pile" else "pile"
+        opposé = "face" if choix == "pile" else "pile"
 
-    role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
-    role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+        role_membre = discord.utils.get(interaction.guild.roles, name="membre")
 
-    contenu_ping = ""
-    if role_membre and role_croupier:
-        contenu_ping = f"{role_membre.mention} {role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
+        contenu_ping = ""
+        if role_membre and role_croupier:
+            contenu_ping = f"{role_membre.mention} {role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
 
-    description = (
-        f"{self.joueur1.mention} a choisi : {EMOJIS[choix]} **{choix.upper()}**\n"
-        f"Montant misé : **{self.montant:,.0f}".replace(",", " ") + " kamas** 💰\n"
-        f"Commission de 5% (gain net : **{int(self.montant * 2 * (1 - COMMISSION)):,.0f}".replace(",", " ") + " kamas**)"
-    )
+        description = (
+            f"{self.joueur1.mention} a choisi : {EMOJIS[choix]} **{choix.upper()}**\n"
+            f"Montant misé : **{self.montant:,.0f}".replace(",", " ") + " kamas** 💰\n"
+            f"Commission de 5% (gain net : **{int(self.montant * 2 * (1 - COMMISSION)):,.0f}".replace(",", " ") + " kamas**)"
+        )
 
-    embed = discord.Embed(
-        title="🪙 Duel Pile ou Face",
-        description=description,
-        color=discord.Color.orange()
-    )
+        embed = discord.Embed(
+            title="🪙 Duel Pile ou Face",
+            description=description,
+            color=discord.Color.orange()
+        )
 
-    embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
-    embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
+        embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
+        embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
 
-    await interaction.response.edit_message(view=None)
+        await interaction.response.edit_message(view=None)
 
-    rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
+        rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, choix_joueur1=choix, montant=self.montant)
 
-    message = await interaction.channel.send(
-        content=contenu_ping,
-        embed=embed,
-        view=rejoindre_view,
-        allowed_mentions=discord.AllowedMentions(roles=True)
-    )
+        message = await interaction.channel.send(
+            content=contenu_ping,
+            embed=embed,
+            view=rejoindre_view,
+            allowed_mentions=discord.AllowedMentions(roles=True)
+        )
 
-    rejoindre_view.message_id = message.id
+        rejoindre_view.message_id = message.id
 
-    duels[message.id] = {
-        "joueur1": self.joueur1,
-        "choix": choix,
-        "montant": self.montant,
-        "joueur2": None
-    }
-
+        duels[message.id] = {
+            "joueur1": self.joueur1,
+            "choix": choix,
+            "montant": self.montant,
+            "joueur2": None
+        }
 
     @discord.ui.button(label="🪙 Pile", style=discord.ButtonStyle.primary)
     async def pile(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -211,6 +210,7 @@ class ChoixPileOuFace(discord.ui.View):
     @discord.ui.button(label="🧿 Face", style=discord.ButtonStyle.secondary)
     async def face(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.lock_choice(interaction, "face")
+
 
 # Pagination pour affichage stats
 class StatsView(discord.ui.View):
