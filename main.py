@@ -82,7 +82,7 @@ class RejoindreView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
 
-    async def lancer_pof(self, interaction: discord.Interaction):
+        async def lancer_pof(self, interaction: discord.Interaction):
         if not any(role.name == "croupier" for role in interaction.user.roles):
             await interaction.response.send_message("❌ Seuls les `croupiers` peuvent lancer le tirage.", ephemeral=True)
             return
@@ -115,11 +115,15 @@ class RejoindreView(discord.ui.View):
 
         resultat = random.choice(["Pile", "Face"])
         resultat_emoji = "🪙" if resultat == "Pile" else "🧿"
-        choix_joueur2 = "Face" if self.choix_joueur1 == "Pile" else "Pile"
-        choix_joueur1_emoji = "🪙" if self.choix_joueur1 == "Pile" else "🧿"
+
+        # 🔧 Normalisation du choix joueur1
+        choix_joueur1 = self.choix_joueur1.capitalize()
+        choix_joueur1_emoji = "🪙" if choix_joueur1 == "Pile" else "🧿"
+
+        choix_joueur2 = "Face" if choix_joueur1 == "Pile" else "Pile"
         choix_joueur2_emoji = "🪙" if choix_joueur2 == "Pile" else "🧿"
 
-        gagnant = self.joueur1 if resultat == self.choix_joueur1 else self.joueur2
+        gagnant = self.joueur1 if resultat == choix_joueur1 else self.joueur2
         gain = int(self.montant * 2 * (1 - COMMISSION))
 
         result_embed = discord.Embed(
@@ -133,7 +137,7 @@ class RejoindreView(discord.ui.View):
 
         result_embed.add_field(
             name="👤 Joueur 1",
-            value=f"{self.joueur1.mention}\nChoix : **{self.choix_joueur1} {choix_joueur1_emoji}**",
+            value=f"{self.joueur1.mention}\nChoix : **{choix_joueur1} {choix_joueur1_emoji}**",
             inline=True
         )
 
@@ -173,6 +177,7 @@ class RejoindreView(discord.ui.View):
             print("❌ Erreur insertion base:", e)
 
         duels.pop(self.message_id, None)
+
 
 
 class ChoixPileOuFace(discord.ui.View):
