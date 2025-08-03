@@ -177,6 +177,7 @@ class ChoixPileOuFace(discord.ui.View):
         )
         embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention}", inline=True)
         embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
+        )
 
         await interaction.response.edit_message(view=None)
 
