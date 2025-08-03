@@ -315,7 +315,7 @@ class StatsView(discord.ui.View):
 # --- Commande /statsall : stats à vie ---
 @bot.tree.command(name="statsall", description="Affiche les stats de roulette à vie")
 async def statsall(interaction: discord.Interaction):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-Face":
+    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "pile-ou-face":
         await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon #roulette.", ephemeral=True)
         return
 
@@ -414,7 +414,7 @@ async def mystats(interaction: discord.Interaction):
 @bot.tree.command(name="duel", description="Lancer un duel Pile ou Face avec un montant.")
 @app_commands.describe(montant="Montant misé en kamas")
 async def duel(interaction: discord.Interaction, montant: int):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "Pile-ou-Face":
+    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "pile-ou-face":
         await interaction.response.send_message("❌ Utilise cette commande dans #Pile-ou-Face.", ephemeral=True)
         return
 
