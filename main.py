@@ -18,8 +18,8 @@ EMOJIS = {"Pile": "🪙", "Face": "🧿"}
 COMMISSION = 0.05
 
 ROULETTE_NUM_IMAGES = {
-    "Pile": "https://i.imgur.com/JKbZT3L.png",
-    "Face": "https://i.imgur.com/4ascC3Z.png"
+    "Pile": "https://i.imgur.com/Ou3zCoN.png",
+    "Face": "https://i.imgur.com/Ayd1qMK.png"
 }
 
 # --- Connexion SQLite et création table ---
