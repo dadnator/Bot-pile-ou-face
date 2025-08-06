@@ -58,7 +58,7 @@ async def lancer_le_pile_ou_face(interaction, duel_data, message_id_final):
     
     original_message = await interaction.channel.send(embed=suspense_embed)
 
-    for i in range(5, 0, -1):
+    for i in range(10, 0, -1):
         await asyncio.sleep(1)
         suspense_embed.title = f"🪙 Tirage en cours ..."
         await original_message.edit(embed=suspense_embed)
