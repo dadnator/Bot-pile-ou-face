@@ -24,8 +24,8 @@ COMMISSION = 0.05
 
 POF_IMAGES = {
     "suspense": "https://i.makeagif.com/media/11-22-2017/gXYMAo.gif",
-    "pile": "https://i.imgur.com/8fGg6E1.png", 
-    "face": "https://i.imgur.com/k9b62fU.png"  
+    "pile": "https://i.imgur.com/BgXd5d5.png", 
+    "face": "https://i.imgur.com/uA4x6GT.png"  
 }
 
 conn = sqlite3.connect("pile_ou_face_stats.db")
@@ -170,7 +170,7 @@ class RejoindreView(discord.ui.View):
         valeur_joueur2 = self.opposés[self.valeur_choisie]
         
         embed.set_field_at(1, name="👤 Joueur 2", value=f"{self.joueur2.mention} - {EMOJIS[valeur_joueur2]} `{valeur_joueur2.upper()}`", inline=True)
-        embed.set_field_at(2, name="Status", value="🎲 Un croupier est attendu pour lancer le duel.", inline=False)
+        embed.set_field_at(2, name="Status", value="🕓 Un croupier est attendu pour lancer le duel.", inline=False)
         embed.set_footer(text="Cliquez sur le bouton pour rejoindre en tant que croupier.")
         
         role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
@@ -271,7 +271,7 @@ class PariView(discord.ui.View):
         )
         public_embed.add_field(name="👤 Joueur 1", value=f"{self.joueur1.mention} - {EMOJIS[valeur]} `{valeur.upper()}`", inline=True)
         public_embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
-        public_embed.add_field(name="Status", value="🎯 En attente d'un second joueur.", inline=False)
+        public_embed.add_field(name="Status", value="🕓 En attente d'un second joueur.", inline=False)
         public_embed.set_footer(text=f"📋 Pari pris : {self.joueur1.display_name} - {EMOJIS[valeur]} {valeur.upper()} | Choix restant : {EMOJIS[choix_restant]} {choix_restant.upper()}")
 
         public_rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, valeur_choisie=valeur, montant=self.montant)
@@ -558,7 +558,7 @@ async def quit_duel(interaction: discord.Interaction):
             )
             new_embed.add_field(name="👤 Joueur 1", value=f"{joueur1.mention} - {EMOJIS[valeur_choisie]} `{valeur_choisie.upper()}`", inline=True)
             new_embed.add_field(name="👤 Joueur 2", value="🕓 En attente...", inline=True)
-            new_embed.add_field(name="Status", value="🎯 En attente d'un second joueur.", inline=False)
+            new_embed.add_field(name="Status", value="🕓 En attente d'un second joueur.", inline=False)
             new_embed.set_footer(text=f"📋 Pari pris : {joueur1.display_name} - {EMOJIS[valeur_choisie]} {valeur_choisie.upper()} | Choix restant : {EMOJIS[choix_restant]} {choix_restant.upper()}")
             
             new_view = RejoindreView(message_id=message_initial.id, joueur1=joueur1, valeur_choisie=valeur_choisie, montant=montant)
