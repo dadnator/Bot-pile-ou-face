@@ -23,7 +23,7 @@ EMOJIS = {
 COMMISSION = 0.05
 
 POF_IMAGES = {
-    "suspense": "https://i.makeagif.com/media/11-22-2017/gXYMAo.gif",
+    "suspense": "https://www.cliqueduplateau.com/wordpress/wp-content/uploads/2015/12/flip.gif",
     "pile": "https://i.imgur.com/BgXd5d5.png", 
     "face": "https://i.imgur.com/uA4x6GT.png"  
 }
