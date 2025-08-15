@@ -87,8 +87,8 @@ async def lancer_le_pile_ou_face(interaction, duel_data, message_id_final):
     result_embed.add_field(name="👤 Joueur 2", value=f"{joueur2.mention}\nChoix : {EMOJIS[choix_joueur2]} `{choix_joueur2.upper()}`", inline=True)
     result_embed.add_field(name=" ", value="─" * 20, inline=False)
     
-    result_embed.add_field(name="💰 Montant misé", value=f"**{montant:,}".replace(",", "\u00A0") + "\u00A0kamas** par joueur", inline=False)
     result_embed.add_field(name="🏆 Gagnant", value=f"**{gagnant.mention}** remporte **{net_gain:,}".replace(",", "\u00A0") + "\u00A0kamas** 💰 (après 5% de commission)", inline=False)
+    result_embed.add_field(name="💰 Montant misé", value=f"{montant:,}".replace(",", "\u00A0") + "\u00A0kamas par joueur", inline=False)
     
     result_embed.set_footer(text="🪙 Duel terminé • Bonne chance pour le prochain !")
     
