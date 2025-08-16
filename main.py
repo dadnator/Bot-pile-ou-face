@@ -177,7 +177,7 @@ class RejoindreView(discord.ui.View):
         embed.set_field_at(2, name="Status", value="🕓 Un croupier est attendu pour lancer le duel.", inline=False)
         embed.set_footer(text="Cliquez sur le bouton pour rejoindre en tant que croupier.")
         
-        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+        role_membre = interaction.guild.get_role(ID_CROUPIER)
         contenu_ping = ""
         if role_croupier:
             contenu_ping = f"{role_croupier.mention} — Un nouveau duel est prêt ! Un croupier est attendu."
@@ -280,7 +280,7 @@ class PariView(discord.ui.View):
 
         public_rejoindre_view = RejoindreView(message_id=None, joueur1=self.joueur1, valeur_choisie=valeur, montant=self.montant)
         
-        role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+        role_membre = interaction.guild.get_role(ID_MEMBRE)
         contenu_ping = ""
         if role_membre:
             contenu_ping = f"{role_membre.mention} — Un nouveau duel est prêt ! Un joueur est attendu."
