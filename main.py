@@ -10,6 +10,10 @@ from datetime import datetime
 
 token = os.environ['TOKEN_BOT_DISCORD']
 
+ID_CROUPIER = 1406210029815861258
+ID_MEMBRE = 1406210131515019355
+ID_SALON_POF = 1404445540867112980
+
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="/", intents=intents)
 
@@ -187,7 +191,7 @@ class RejoindreView(discord.ui.View):
 
 
     async def rejoindre_croupier(self, interaction: discord.Interaction):
-        role_croupier = discord.utils.get(interaction.guild.roles, name="croupier")
+        role_croupier = interaction.guild.get_role(ID_CROUPIER)
 
         if not role_croupier or role_croupier not in interaction.user.roles:
             await interaction.response.send_message("❌ Tu n'as pas le rôle de `croupier` pour rejoindre ce duel.", ephemeral=True)
@@ -383,8 +387,8 @@ class StatsView(discord.ui.View):
 
 @bot.tree.command(name="statsall", description="Affiche les statistiques de tous les joueurs au Pile ou Face.")
 async def statsall(interaction: discord.Interaction):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "pile-ou-face":
-        await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon de jeu pile ou face.", ephemeral=True)
+    if interaction.channel.id != ID_SALON_POF:
+        await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon #『🪙』pile•face.", ephemeral=True)
         return
 
     c.execute("""
@@ -419,9 +423,6 @@ async def statsall(interaction: discord.Interaction):
 @bot.tree.command(name="mystats", description="Affiche tes statistiques personnelles au Pile ou Face.")
 async def mystats(interaction: discord.Interaction):
     user_id = interaction.user.id
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "pile-ou-face":
-        await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon de jeu pile ou face.", ephemeral=True)
-        return
 
     c.execute("""
     SELECT joueur_id,
@@ -476,8 +477,8 @@ async def mystats(interaction: discord.Interaction):
 @bot.tree.command(name="duel", description="Lancer un duel pile ou face avec un montant.")
 @app_commands.describe(montant="Montant misé en kamas")
 async def duel(interaction: discord.Interaction, montant: int):
-    if not isinstance(interaction.channel, discord.TextChannel) or interaction.channel.name != "pile-ou-face":
-        await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon #pile-ou-face.", ephemeral=True)
+    if interaction.channel.id != ID_SALON_POF:
+        await interaction.response.send_message("❌ Cette commande ne peut être utilisée que dans le salon #『🪙』pile•face.", ephemeral=True)
         return
 
     if montant <= 0:
@@ -572,7 +573,7 @@ async def quit_duel(interaction: discord.Interaction):
                 "message_id_initial": message_initial.id
             }
 
-            role_membre = discord.utils.get(interaction.guild.roles, name="membre")
+            role_membre = interaction.guild.get_role(ID_MEMBRE)
             contenu_ping = ""
             if role_membre:
                 contenu_ping = f"{role_membre.mention} — Un nouveau duel est prêt ! Un joueur est attendu."
